@@ -1,0 +1,3 @@
+
+def stores():
+    return None

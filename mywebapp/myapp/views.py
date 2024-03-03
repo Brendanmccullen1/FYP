@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from .forms import CharacterInputForm
 from .models import ComicBookStore
 from .utils.recommendation import find_similar_characters_cosine, get_wikipedia_image
-from .utils.stores import get_nearby_stores as recommendation_get_nearby_stores
+from .utils.stores import get_nearby_stores as utils_get_nearby_stores
 
 
 def home(request):
@@ -51,22 +51,24 @@ def recommendation_page(request):
     return render(request, 'recommendation_page.html', context)
 
 
-def get_nearby_stores(request):
-    # Get user's location from the query parameters
-    latitude = float(request.GET.get('latitude', 0))
-    longitude = float(request.GET.get('longitude', 0))
+def stores_near_you(request):
+    # For simplicity, let's use coordinates for Dublin
+    latitude = 53.349805
+    longitude = -6.26031
 
-    # Assuming you have a ComicBookStore model
-    stores = ComicBookStore.objects.all()
+    # Replace 'YOUR_GOOGLE_API_KEY' with your actual API key
+    api_key = 'AIzaSyCNMNLMPlaPfeBnnJQtBQBSXAOIpMMHzJg'
 
-    # Calculate distances and filter nearby stores (within a certain radius)
-    nearby_stores = []
-    for store in stores:
-        distance = calculate_distance(latitude, longitude, store.latitude, store.longitude)
-        if distance <= 10.0:  # Example: Consider stores within 10 kilometers
-            nearby_stores.append({'name': store.name, 'address': store.address})
+    # Call the function from utils.stores to get nearby stores
+    recommended_stores = utils_get_nearby_stores(latitude, longitude, api_key)
 
-    return JsonResponse({'recommended_stores': nearby_stores})
+    context = {
+        'recommended_stores': recommended_stores,
+        'latitude': latitude,
+        'longitude': longitude,
+    }
+
+    return render(request, 'stores_near_you.html', context)
 
 
 def calculate_distance(lat1, lon1, lat2, lon2):
