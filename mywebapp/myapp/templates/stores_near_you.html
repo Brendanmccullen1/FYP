@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Add a marker for Dublin
+    // Add a marker for the user's location
     L.marker([latitude, longitude]).addTo(map)
-        .bindPopup('Dublin').openPopup();
+        .bindPopup('Your Location').openPopup();
 
     // Send AJAX request to get store recommendations
     $.ajax({
@@ -37,11 +37,17 @@ document.addEventListener('DOMContentLoaded', function() {
         method: 'GET',
         dataType: 'json', // Ensure that the response is treated as JSON
         success: function (data) {
+            // Loop through recommended stores and add markers to the map
+            data.recommended_stores.forEach(store => {
+                const storeMarker = L.marker([store.geometry.location.lat, store.geometry.location.lng]).addTo(map)
+                    .bindPopup(`${store.name} - ${store.vicinity}`);
+            });
+
             // Update the HTML with the recommended stores
             const storesList = $('#stores-list');
             storesList.empty();
             data.recommended_stores.forEach(store => {
-                storesList.append(`<li>${store.name} - ${store.address}</li>`);
+                storesList.append(`<li>${store.name} - ${store.vicinity}</li>`);
             });
         },
         error: function (error) {

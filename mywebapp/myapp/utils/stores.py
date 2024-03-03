@@ -33,4 +33,5 @@ def get_nearby_stores(latitude, longitude, api_key):
 
         except requests.RequestException as e:
             print(f"Error fetching nearby stores: {e}")
+
             return []
